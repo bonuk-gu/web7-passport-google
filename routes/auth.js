@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var path = require('path');
 var fs = require('fs');
 var template = require('../lib/template.js');
+var shortid = require('shortid');
 
 module.exports = function(passport){
     router.get('/login', function(request, response){ 
@@ -26,7 +26,8 @@ module.exports = function(passport){
         }
     );
 
-    router.get('/register', function(request, response){ 
+    router.get('/register', function(request, response){
+        
         var title = 'login';
         var list = template.list(request.list);
         var html = template.html(title, list, `<form action="/auth/register_process" method="post">
@@ -50,15 +51,38 @@ module.exports = function(passport){
         var pwd = post.pwd;
         var pwd2 = post.pwd2;
         var displayName = post.displayName;
-        var user = {
-            email: `${email}`,
-            pwd: `${pwd}`,
-            displayName: `${displayName}`
-        }
-        fs.writeFile(`users/${displayName}`, JSON.stringify(user), 'utf8', function(err){
-            if (err) console.error(err);
-            response.redirect(`/`);
+        
+        /*
+        fs.readdir('./users', (err, files) => {
+            files.forEach( filename => {
+                fs.readFile(`./users/${filename}`, 'utf8', (err, file) => {
+                    console.log(JSON.parse(file));
+                })
+            })
         })
+        */
+
+        if(pwd !== pwd2){
+            console.log('password');
+            response.redirect('/auth/register');
+        } else {
+            var user = {
+                id: shortid.generate(),
+                email: email,
+                password: pwd,
+                displayName: displayName
+            }
+            fs.writeFileSync(`users/${displayName}`, JSON.stringify(user), 'utf8', function(err){
+                if (err) console.error(err);
+            })
+            request.login(user, function(err){
+                console.log('redirect');
+                request.session.save(function(){
+                    response.redirect('/');
+                })
+                //return response.redirect(`/`);
+            })
+        }   
     })
     
     router.get('/logout', function(request, response){

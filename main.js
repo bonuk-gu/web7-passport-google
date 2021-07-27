@@ -51,7 +51,6 @@ app.use('/auth', authRouter);
 app.use('/', indexRouter);
 app.use('/topic', topicRouter);
 
-
 app.use(function(req, res, next) {
     res.status(404).send('404 Not Found');
 })
