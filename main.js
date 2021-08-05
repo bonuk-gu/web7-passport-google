@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const port = 3000
+const port = 3002 
 var fs = require('fs');
 var bodyParser = require('body-parser');
 var compression = require('compression');
@@ -34,7 +34,6 @@ app.get('/flash-display', function(req, res){
     var fmsg = req.flash();
     res.send(fmsg);
 });
-
 
 app.get('*', function(request, response, next){
     fs.readdir('./data', function(error, filelist){

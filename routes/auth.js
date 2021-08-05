@@ -7,16 +7,19 @@ var shortid = require('shortid');
 module.exports = function(passport){
     router.get('/login', function(request, response){ 
         var title = 'login';
+        var body = `
+            <form action="/auth/login_process" method="post">
+                <p><input type="text" name="email" placeholder="email"></p>
+                <p>
+                    <input type="password" name="pwd" placeholder="password"></p>
+                </p>
+                <p>
+                    <input type="submit" value="register">
+                </p>
+            </form>
+        `;
         var list = template.list(request.list);
-        var html = template.html(title, list, `<form action="/auth/login_process" method="post">
-            <p><input type="text" name="email" placeholder="email"></p>
-            <p>
-                <input type="password" name="pwd" placeholder="password"></p>
-            </p>
-            <p>
-                <input type="submit" value="register">
-            </p>
-        </form>`, '');
+        var html = template.html(title, list, body, '', '');
         response.send(html);
     })
     
@@ -27,21 +30,18 @@ module.exports = function(passport){
     );
 
     router.get('/register', function(request, response){
-        
-        var title = 'login';
+        var title = 'register';
+        var body = `
+            <form action="/auth/register_process" method="post">
+                <p><input type="text" name="email" placeholder="email"></p>
+                <p><input type="password" name="pwd" placeholder="password"></p>
+                <p><input type="password" name="pwd2" placeholder="password"></p>
+                <p><input type="text" name="displayName" placeholder="display name"></p>
+                <p><input type="submit" value="register"></p>
+            </form>
+        `;
         var list = template.list(request.list);
-        var html = template.html(title, list, `<form action="/auth/register_process" method="post">
-            <p><input type="text" name="email" placeholder="email"></p>
-            <p>
-                <input type="password" name="pwd" placeholder="password"></p>
-            <p>
-                <input type="password" name="pwd2" placeholder="password"></p>
-            </p>
-            <p><input type="text" name="displayName" placeholder="display name"></p>
-            <p>
-                <input type="submit" value="register">
-            </p>
-        </form>`, '');
+        var html = template.html(title, list, body, '', '');
         response.send(html);
     })
 
@@ -51,21 +51,16 @@ module.exports = function(passport){
         var pwd = post.pwd;
         var pwd2 = post.pwd2;
         var displayName = post.displayName;
-        
-        /*
-        fs.readdir('./users', (err, files) => {
-            files.forEach( filename => {
-                fs.readFile(`./users/${filename}`, 'utf8', (err, file) => {
-                    console.log(JSON.parse(file));
-                })
-            })
-        })
-        */
 
         if(pwd !== pwd2){
             console.log('password');
             response.redirect('/auth/register');
         } else {
+            /*
+            var user = db.get('users').find({
+                email: email
+            }).values9) 
+            */
             var user = {
                 id: shortid.generate(),
                 email: email,
