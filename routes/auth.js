@@ -2,7 +2,9 @@ var express = require('express');
 var router = express.Router();
 var fs = require('fs');
 var template = require('../lib/template.js');
-var shortid = require('shortid');
+var dbConnection = require('../db_info.js');
+const { doesNotMatch } = require('assert');
+var dbconn = dbConnection.init();
 
 module.exports = function(passport){
     router.get('/login', function(request, response){ 
@@ -14,7 +16,7 @@ module.exports = function(passport){
                     <input type="password" name="pwd" placeholder="password"></p>
                 </p>
                 <p>
-                    <input type="submit" value="register">
+                    <input type="submit" value="login">
                 </p>
             </form>
         `;
@@ -56,27 +58,42 @@ module.exports = function(passport){
             console.log('password');
             response.redirect('/auth/register');
         } else {
-            /*
-            var user = db.get('users').find({
-                email: email
-            }).values9) 
-            */
-            var user = {
-                id: shortid.generate(),
-                email: email,
-                password: pwd,
-                displayName: displayName
-            }
-            fs.writeFileSync(`users/${displayName}`, JSON.stringify(user), 'utf8', function(err){
-                if (err) console.error(err);
+            dbconn.query(`select * from users where email='${email}'`, (err, results, fields) => {
+                if(err) {
+                    console.log(err);
+                } else {
+                    var user = results[0];
+                    if(user) {
+                        console.log('email already exist');
+                        response.redirect('/auth/register');
+                    } else {
+                        dbconn.query(`select * from users where displayname='${displayName}'`, (err, results, fields) => {
+                            var user = results[0]
+                            if(user) {
+                                console.log('displayName already exist');
+                                response.redirect('/auth/register');
+                            } else {
+                                dbconn.query(`insert into users (email, pwd, displayname) values ('${email}', '${pwd}', '${displayName}')`);
+                                
+                                var user = {
+                                    email: email,
+                                    pwd: pwd,
+                                    displayname: displayName
+                                }
+                    
+                                request.login(user, function(err){
+                                    console.log('redirect');
+                                    request.session.save(function(){
+                                        response.redirect('/');
+                                    })
+                                })
+                            }
+                        })
+                    }
+                }
             })
-            request.login(user, function(err){
-                console.log('redirect');
-                request.session.save(function(){
-                    response.redirect('/');
-                })
-                //return response.redirect(`/`);
-            })
+
+           
         }   
     })
     
