@@ -6,7 +6,6 @@ var sanitizeHtml = require('sanitize-html');
 var template = require('../lib/template.js');
 var auth = require('../lib/auth');
 
-
 router.get('/create', function(request, response){
     if(!auth.isOwner(request, response)){
         response.redirect('/');
@@ -98,7 +97,7 @@ router.post('/delete_process', function(request, response){
     })
 })
 
-router.get('/:pageId/', function(request, response, next) {
+router.get('/:pageId/', function(request , response, next) {
     console.log(request.list);
     var filteredId = path.parse(request.params.pageId).base
     fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
