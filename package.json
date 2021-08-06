@@ -27,6 +27,7 @@
     "express-session": "^1.17.2",
     "lowdb": "^2.1.0",
     "mysql": "^2.18.1",
+    "mysql2": "^2.3.0",
     "node-mysql": "^0.4.2",
     "nodemon": "^2.0.12",
     "passport": "^0.4.1",
